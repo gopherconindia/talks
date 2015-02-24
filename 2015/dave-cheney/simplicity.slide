@@ -1,0 +1,165 @@
+Simplicity and collaboration
+Closing Keynote, Gophercon India
+21 Feb 2015
+
+Dave Cheney
+dave@cheney.net
+http://dave.cheney.net/
+@davecheney
+
+* Hello
+
+* Thesis
+
+.image simplicity/thesis.png _ 800
+
+* Quote
+
+.image simplicity/history.jpg _ 800
+
+"Those who cannot remember the past are condemned to repeat it."
+
+.caption -- George Santayana
+
+* Simplicity
+
+* Simplicity cannot be added later
+
+.image simplicity/IMG_0095.png _ 750
+
+You cannot add simplicity after the fact.
+
+* Simplicity is not easy
+
+.image simplicity/IMG_0245.JPG 450 _ 
+
+Simplicity is not a synonym for "easy", nor is achieving a design which is simple an easy task.
+
+* Don’t mistake simple for “crude”
+
+.image simplicity/10_ck_chef_hand_10.jpg _ 800
+
+* Simplicity is a goal, not a by-product
+
+"nothing went in [to the language], until all three of us [Ken, Robert and myself], agreed that it was a good idea."
+
+.caption -- Rob Pike (Gophercon 2014)
+
+* Choose simplicity over completeness 
+
+# There is an exponential cost in completeness.
+
+The last 10% costs another 90% of the effort.
+
+* Complexity
+
+.image simplicity/four_string_braid.jpg 420 _
+
+Complexity is friction, a force which acts against getting things done.
+
+Complexity is debt, it robs you of the capital to invest in the future.
+
+* Good programmers write simple programs
+
+* Simplicity, conclusion
+
+# To steal a quote form Rich Hickey
+
+"Simplicity is the ultimate sophistication"
+
+.caption -- Leonardo da Vinci
+
+* Collaboration
+
+* A language for collaboration
+
+Large programs are written by large teams
+
+Large teams of programmers, by their nature, produce large code bases.
+
+* Big problems 
+
+.image simplicity/nasa-mainframe-980x663.jpg _ 800
+
+* Programming languages as part of an environment
+
+* Code is written to be decoded
+
+.image simplicity/cover-big.jpg 550 _
+
+* How to build a Go community
+
+.image simplicity/gofmt.png
+
+* Batteries included
+
+* Interfaces, the UNIX way
+
+.image simplicity/pipe.png 900 _
+
+* Small interfaces
+
+Well designed interfaces are more likely to be small interfaces; the prevailing idiom here is that interfaces have only a single method.
+
+Small interfaces lead to simple implementations.
+
+Simple implementations connected by common interfaces. 
+
+* Errors and interfaces
+
+.image simplicity/error.png _ 900
+
+* Simple build system
+
+* Sans runtime
+
+* Portability
+
+* A command line renaissance
+
+* Conclusion
+
+# (5 minutes)
+
+* Go is a simple language
+
+.image simplicity/supermighty.png _ 800
+
+* Go is a language for programmers who want to get things done
+
+"I just get things done instead of talking about getting them done."
+
+.caption -- Henry Rollins
+
+* Go is the right language at the right time.
+
+“Go arrived as the industry underwent a tectonic shift toward cloud computing, and we were thrilled to see it quickly become an important part of that movement.”
+
+.caption -- Andrew Gerrand
+
+"Go is a language designed by Google to help solve Google's problems; and Google has big problems"
+
+.caption -- Rob Pike
+
+* Go is growing
+
+.image simplicity/growing.png 
+
+* Plus!
+
+- Ever growing engagement in social media; Twitter, Google plus, ...
+- An established Reddit community [[http://www.reddit.com/r/golang][/r/golang]].
+- Real time discussion communities like the #go-nuts IRC channel, or the slack gophers group.
+- Go featured in mainstream tech press, companies shipping Go APIs for their services.
+- Go training available in both professional and academic contexts.
+- Over 100 meetups around the world, [[http://go-meetups.appspot.com/][go-meetups.appspot.com]].
+- Sites like [[http://gophervids.appspot.com/][Damien Gryski's Gophervids]] helping to disseminate the material produced by those meetups and conferences.
+- Community hackathon events like GopherGala.
+
+* Take the time to really learn the language
+
+.image simplicity/amor.jpg
+
+Learn to love the language. _Really_ learn the language, it'll take longer than you would think.
+
+* Go will make you a better programmer
