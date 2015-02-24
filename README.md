@@ -68,6 +68,6 @@ Go for Simulations in Wireless Research by Dr. Sendil Devar
 
 Raytracing in Go by Guillaume J. Charmes
 
-Closing Keynote: Simplicity and the ideas that Go left behind by Dave Cheney
+[Closing Keynote: Simplicity and the ideas that Go left behind](https://sourcegraph.com/blog/live/gopherconindia/111854129512) by Dave Cheney
 
 
