@@ -1,7 +1,7 @@
-2015-talks
-==========
+Talk Slides
+===========
 
-This is the official repository for slides and talks from GopherConIndia 2015.
+This is the official repository for talk slides from GopherConIndia.
 
 If you create a pull request - don't forget to update this file.
 
@@ -60,7 +60,7 @@ Building Internet of Things with Go by Lakshan Perera
 
 Go for Simulations in Wireless Research by Dr. Sendil Devar
 
-How to keep wall street chatting using Go by Matthew Campbell
+[How to keep wall street chatting using Go](http://www.slideshare.net/MatthewCampbell7/wallstreet-talk-with-go-go-india-conference-2015) by Matthew Campbell
 
 Image Processing in Scale with Go by Jyotiska NK
 
