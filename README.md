@@ -32,7 +32,7 @@ Go Faster: Optimising Go Programs by Jason Moiron
 
 Web development using Go and Ember.js by Baiju Muthukadan
 
-Go metaprogramming by Beyang Liu
+[Go metaprogramming](http://go-talks.appspot.com/github.com/sourcegraph/talks/gopherconindia-2015-02-08/main.slide#1) by Beyang Liu
 
 Concurrency by Data Structures (and nasty examples) - Verónica López
 
@@ -56,7 +56,7 @@ Gottp: A micro backend framework in Go by Piyush Verma
 
 N1QL a query language in Go. It makes "cents" by Sriram Melkote
 
-High performance git infrastructure with Go by David Calavera
+[High performance git infrastructure with Go](https://speakerdeck.com/calavera/git-infrastructure-with-go) by David Calavera
 
 Building Internet of Things with Go by Lakshan Perera
 
@@ -68,6 +68,7 @@ Go for Simulations in Wireless Research by Dr. Sendil Devar
 
 Raytracing in Go by Guillaume J. Charmes
 
-[Closing Keynote: Simplicity and the ideas that Go left behind](https://sourcegraph.com/blog/live/gopherconindia/111854129512) by Dave Cheney
+[Closing Keynote: Simplicity and collaboration](http://go-talks.appspot.com/github.com/IndianGuru/gopherconindia-2015-talks/dave-cheney/simplicity.slide) by Dave Cheney
+[Blog post](https://sourcegraph.com/blog/live/gopherconindia/111854129512)
 
 
