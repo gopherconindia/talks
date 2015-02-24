@@ -50,7 +50,7 @@ Concurrent, High-Performance Data-Access With Go by Sunil Sayyaparaju
 
 An alternate approach to data by Amit Upadhyay
 
-bleve: modern text indexing for Go by Martin Schoch
+[Bleve - modern text indexing for Go](https://speakerdeck.com/mschoch/bleve-modern-text-indexing-for-go) by Marty Schoch
 
 Gottp: A micro backend framework in Go by Piyush Verma
 
