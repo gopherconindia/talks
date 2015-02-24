@@ -68,7 +68,7 @@ Go In Action - The Channel Guarantee by William Kennedy
 
 [Raytracing in Go](https://sourcegraph.com/blog/live/gopherconindia/111649268512) by Guillaume J. Charmes
 
-[Closing Keynote: Simplicity and collaboration](http://go-talks.appspot.com/github.com/IndianGuru/gopherconindia-2015-talks/dave-cheney/simplicity.slide) | [Blog post](https://sourcegraph.com/blog/live/gopherconindia/111854129512) by Dave Cheney
+[Closing Keynote: Simplicity and collaboration](http://go-talks.appspot.com/github.com/gopherconindia/talks/2015/dave-cheney/simplicity.slide) | [Blog post](https://sourcegraph.com/blog/live/gopherconindia/111854129512) by Dave Cheney
 
 
 Lightning Talks
