@@ -64,7 +64,7 @@ Go for Simulations in Wireless Research by Dr. Sendil Devar
 
 [How to keep wall street chatting using Go](http://www.slideshare.net/MatthewCampbell7/wallstreet-talk-with-go-go-india-conference-2015) by Matthew Campbell
 
-Image Processing in Scale with Go by Jyotiska NK
+[Image Processing at scale in Go](https://speakerdeck.com/jyotiska/image-processing-in-scale-with-go-gophercon-india-2015) by Jyotiska NK
 
 Raytracing in Go by Guillaume J. Charmes
 
