@@ -16,7 +16,9 @@ Gopher from the future by Gabriel Aszalos
 
 A Journey From Ruby to Go by Mike Gehard
 
-Go In Action by William Kennedy
+Go In Action - The Channel Guarantee by William Kennedy  
+[Rely Race Code](https://github.com/ArdanStudios/gotraining/blob/master/06-concurrency_channels/03-channels/example2/example2.go) | 
+[Tennis Match Code](https://github.com/ArdanStudios/gotraining/blob/master/06-concurrency_channels/03-channels/example1/example1.go)
 
 Go for Front End Developers by Julia Poladsky
 
