@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<!-- saved from url=(0034)http://127.0.0.1:3999/main.slide#1 -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <title>Practical Metaprogramming in Go</title>
+    <meta charset="utf-8">
+    <script src="./Practical Metaprogramming in Go_files/slides.js"></script>
+  <meta name="viewport" content="width=1100,height=750"><meta name="apple-mobile-web-app-capable" content="yes"></head>
+
+  <body style="display: none" class="loaded">
+
+    <section class="slides layout-widescreen">
+      
+      <article class="current">
+        <h1>Practical Metaprogramming in Go</h1>
+        <h3>GopherConIndia</h3>
+        <h3>20 February 2015</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Beyang Liu
+  </p>
+  
+
+  
+  <p>
+    Sourcegraph
+  </p>
+  
+
+          </div>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    
+  </p>
+  
+
+          </div>
+        
+      </article>
+      
+  
+  
+      <article class="next">
+      
+        <h3>Liveblog!</h3>
+        
+  
+  <p>
+    <a href="http://gophercon.sourcegraph.com/" target="_blank">gophercon.sourcegraph.com</a>
+  </p>
+  
+
+  
+  <p>
+    Thanks to
+  </p>
+  
+
+  <ul>
+  
+    <li>Matthew Kanwisher (@kanwisher)</li>
+  
+    <li>Niket Patel (@nexneo)</li>
+  
+    <li>Julia Poladsky (@juliaallyce)</li>
+  
+    <li>Bill Kennedy (@goinggodotnet)</li>
+  
+    <li>Guillaume Charmes (@charme_g)</li>
+  
+    <li>Mike Gehard (@mikegehard)</li>
+  
+    <li>Alan Shreve (@inconshreveable)</li>
+  
+    <li>Dave Cheney (@davecheney)</li>
+  
+    <li>Gabriel Aszalos (@gabrielaszalos)</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="far-next">
+      
+        <h3>What is metaprogramming?</h3>
+        
+  
+  <p>
+    A <b>metaprogram</b> is a program that generates, modifies, or analyzes other programs.
+  </p>
+  
+
+  <ul>
+  
+    <li>C++ template metaprogramming</li>
+  
+    <li>Lisp macros</li>
+  
+    <li>Ruby method_missing</li>
+  
+    <li>Python metaclasses and decorators</li>
+  
+  </ul>
+
+  
+  <p>
+    FANCY!!!
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>But really, what is metaprogramming?</h3>
+        
+  
+  <p>
+    meta ≠ complex
+  </p>
+  
+
+  
+  <p>
+    Programming involves automating tedious, but important tasks.
+<br>
+
+    Metaprogramming involves automating tedious, but important programming tasks.
+  </p>
+  
+
+  <ul>
+  
+    <li>Doesn't have to be fancy.</li>
+  
+    <li>More people should do it.</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Motivation: writing a web application in Go</h3>
+        
+<div class="image">
+  <img src="./Practical Metaprogramming in Go_files/webappstruct.svg" height="500" width="1050">
+</div>
+
+  
+  <p>
+    Web app architecture (see Quinn Slack's <a href="http://go-talks.appspot.com/github.com/sourcegraph/talks/google-io-2014/gio2014.slide#1" target="_blank">talk at Google IO 2014</a>)
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Ideally, we would like</h3>
+        
+  <ul>
+  
+    <li>Good, fast unit tests</li>
+  
+    <li>High confidence in the correctness of critical logic</li>
+  
+    <li>Hassle-free deployment</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Goal 1: good, fast unit tests via mocks</h3>
+        
+  
+  <p>
+    Mock pattern in Go:
+  </p>
+  
+
+  
+  <div class="code"><pre>type Service interface {
+     GetRepo(r RepoSpec) (*Repo, error)
+}
+
+// Implementation
+type service struct { ... }
+func (s *service) GetRepo(r RepoSpec) (*Repo, error) { ... }
+
+// Mock
+type MockService struct {
+     GetRepo_ func(r RepoSpec) (*Repo, error)
+}
+
+func (s *MockService) GetRepo(r RepoSpec) (*Repo, error) {
+     return s.GetRepo_(r)
+}
+
+// Test
+func Test_someOtherPartOfTheApp(t *testing.T) {
+     s := MockService{func(r RepoSpec) { return { &amp;Repo{Name: "fakerepo"} } }
+     ...
+}</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>So you added a bunch of features...</h3>
+        
+  
+  <div class="code"><pre>type Service interface {
+
+     GetRepo(r RepoSpec) (*Repo, error)
+
+     ListRepos(opt ListRepoOpts) ([]*Repo, error)
+
+     CreateRepo(r *Repo) (*Repo, error)
+
+     GetDef(d DefSpec) (*Def, error)
+
+     ListDefs(opt ListDefsOpts) ([]*Def, error)
+
+     GetRef(r RefSpec) (*Ref, error)
+
+     ListRefs(opt ListRefsOpts) ([]*Ref, error)
+
+     // etc.
+}</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Now you need to write a bunch of tedious code for the mock :(</h3>
+        
+  
+  <div class="code"><pre>type MockService struct {
+     GetRepo_ func (r RepoSpec) (*Repo, error)
+     ListRepos_ func(opt ListRepoOpts) ([]*Repo, error)
+     CreateRepo_ func(r *Repo) (*Repo, error)
+     GetDef_ func(d DefSpec) (*Def, error)
+     ListDefs_ func(opt ListDefsOpts) ([]*Def, error)
+     GetRef_ func(r RefSpec) (*Ref, error)
+     ListRefs_ func(opt ListRefsOpts) ([]*Ref, error)
+}
+func (s MockService) GetRepo func (r RepoSpec) (*Repo, error) {
+     return s.GetRepo_(r)
+}
+func (s MockService) ListRepos func(opt ListRepoOpts) ([]*Repo, error) {
+     return s.ListRepos_(opt)
+}
+func (s MockService) CreateRepo func(r *Repo) (*Repo, error) {
+     return s.CreateRepo_(r)
+}
+func (s MockService) GetDef func(d DefSpec) (*Def, error) {
+     return s.GetDef_(d)
+}
+func (s MockService) ListDefs func(opt ListDefsOpts) ([]*Def, error) {
+     return s.ListDefs_(opt)
+}
+func (s MockService) GetRef func(r RefSpec) (*Ref, error) {
+     return s.GetRef_(r)
+}
+func (s MockService) ListRefs func(opt ListRefsOpts) ([]*Ref, error) {
+     return s.ListRefs_(opt)
+}</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>gen-mocks: command-line tool to auto-generate code for mocks</h3>
+        
+  
+  <p>
+    Used for <a href="https://sourcegraph.com/sourcegraph/go-sourcegraph" target="_blank">Sourcegraph's API client</a> (<a href="https://sourcegraph.com/sourcegraph/go-sourcegraph" target="_blank">sourcegraph.com/sourcegraph/go-sourcegraph</a>) and internal services.
+  </p>
+  
+
+  
+  <div class="code"><pre>$ go get sourcegraph.com/sourcegraph/gen-mocks
+$ gen-mocks -n=service -o=service/ -p=sourcegraph.com/sourcegraph/service</pre></div>
+  
+
+  
+  <p>
+    For every file.go that contains a service interface, outputs file_mock.go.
+  </p>
+  
+
+  
+  <p>
+    Just 200 lines of code:
+<br>
+
+    <a href="https://sourcegraph.com/sourcegraph/gen-mocks@master/.tree/gen_mocks.go" target="_blank">sourcegraph.com/sourcegraph/gen-mocks@master/.tree/gen_mocks.go</a>
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Goal 2: double-check critical code</h3>
+        
+  
+  <p>
+    Correctness of permissions checking code is critical.
+  </p>
+  
+
+  
+  <div class="code"><pre>func (s *service) GetRepo(r RepoSpec) (*Repo, error) {
+     if !hasPermission(s.UserID, r) {
+        return nil, errors.New("permission denied")
+     }
+
+     ...
+}</pre></div>
+  
+
+  
+  <p>
+    We verify it with:
+  </p>
+  
+
+  <ul>
+  
+    <li>unit tests</li>
+  
+    <li>strong code review practices</li>
+  
+  </ul>
+
+  
+  <p>
+    But we could use a third line of defense.
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Easy to screw up</h3>
+        
+  
+  <p>
+    You could accidentally remove the permissions check
+  </p>
+  
+
+  
+  <div class="code"><pre>func (s *service) GetRepo(r RepoSpec) (*Repo, error) {
+-     if !hasPermission(s.UserID, r) {
+-        return nil, errors.New("permission denied")
+-     }
++     // Some big
++     // and complex
++     // refactor
++     ...
+}</pre></div>
+  
+
+  
+  <p>
+    or forget to include the permissions check in new code.
+  </p>
+  
+
+  
+  <div class="code"><pre>+ func (s *service) DeleteRepo(r RepoSpec) error {
++      return db.Exec(`DELETE FROM repo WHERE rid = $1`, r.RID)
++ }</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>"Warn me if any service method doesn't call a function called 'hasPermission'"</h3>
+        
+  
+  <div class="code"><pre>$ ./verify-permissions-checks
+service.GetRepo
+FAIL
+The above service methods failed to check permissions.</pre></div>
+  
+
+  
+  <p>
+    <a href="https://sourcegraph.com/github.com/beyang/go-astquery" target="_blank">go-astquery</a>, a set of convenience functions for querying the AST, 300 lines of code.
+  </p>
+  
+
+  
+  <p>
+    Learn by example:
+  </p>
+  
+
+  <ul>
+  
+    <li><a href="https://sourcegraph.com/github.com/beyang/go-astquery/.GoPackage/github.com/beyang/go-astquery/.def/Find" target="_blank">astquery.Find(nodes, filter)</a></li>
+  
+    <li><a href="https://sourcegraph.com/github.com/golang/go/.GoPackage/go/parser/.def/ParseDir" target="_blank">sourcegraph.com/github.com/golang/go/.GoPackage/go/parser/.def/ParseDir</a></li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Using go-astquery</h3>
+        
+  
+  <div class="code"><pre>// verify-permissions-check.go
+
+import (
+    "github.com/beyang/go-astquery"
+    ...
+)
+
+func main() {
+     bpkg, _ := build.Import("sourcegraph.com/sourcegraph/sourcegraph/service")
+     pkgs, _ := parser.ParseDir(token.NewFileSet(), bpkg.Dir, nil, parser.AllErrors)
+     pkg := pkgs["service"]
+     service := astquery.Find([]ast.Node{pkg},
+       astquery.SetFilter{Names: []string{"service"}, Type: ((*ast.TypeSpec)(nil))})[0]
+     methods := astquery.Find([]ast.Node{pkg},
+       astquery.MethodFilter{ReceiverType: astquery.GetName(service)})
+     for _, method := range methods {
+         calls := astquery.Find([]ast.Node{method}, SetFilter{Names: []string{"hasPermission"}, type: ((*ast.TypeSpec)(nil))})
+         if len(calls) == 0 {
+            fmt.Fprintf(os.Stderr, "SECURITY WARNING: PERMISSIONS NOT CHECKED")
+            os.Exit(1)
+         }
+     }
+}</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Checking package import structure</h3>
+        
+  
+  <p>
+    Want to prevent direct access from app to db package
+  </p>
+  
+
+  
+  <div class="code"><pre>package app
+
+import "sourcegraph.com/sourcegraph/sourcegraph/db"
+
+func serveRepoPage(w http.ResponseWriter, r *http.Request) {
+  ...
+  rows, err := db.Query(`SELECT * FROM repo WHERE rid=$1`, rid)
+  ...
+}</pre></div>
+  
+
+  
+  <p>
+    Use go list to check package import structure:
+  </p>
+  
+
+  
+  <div class="code"><pre>$ go list -f {{.Imports}} sourcegraph.com/sourcegraph/sourcegraph/app \
+  | grep sourcegraph.com/sourcegraph/sourcegraph/db</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Go oracle</h3>
+        
+  
+  <p>
+    Powerful library/tool for asking questions about code (<a href="https://sourcegraph.com/github.com/golang/tools@master/.tree/oracle" target="_blank">view source</a>).
+  </p>
+  
+
+  <ul>
+  
+    <li>interfaces satisfied by a type</li>
+  
+    <li>possible concrete types of an interface variable</li>
+  
+    <li>callers of a function</li>
+  
+    <li>callees of a function</li>
+  
+    <li>callstack, callgraph</li>
+  
+    <li>channel peers</li>
+  
+  </ul>
+
+  
+  <p>
+    Could implement a stronger permissions check using Go oracle.
+<br>
+
+    Potential for many more static analysis tools here.
+  </p>
+  
+
+  
+  <p>
+    (see <a href="http://talks.golang.org/2014/static-analysis.slide" target="_blank">Alan Donovan's excellent talk on the Go oracle</a>)
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Goal 3: hassle-free distribution</h3>
+        
+  
+  <p>
+    Go lets you just ship your app as a single static binary.
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>...Or does it?</h3>
+        
+  
+  <p>
+    What about
+  </p>
+  
+
+  <ul>
+  
+    <li>HTML template files</li>
+  
+    <li>JavaScript/CSS</li>
+  
+    <li>static images</li>
+  
+    <li>fonts</li>
+  
+    <li>environment variables</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>go-bindata: roll static assets into the Go binary</h3>
+        
+  
+  <p>
+    Awesome library (<a href="https://sourcegraph.com/github.com/jteeuwen/go-bindata" target="_blank">github.com/jteeuwen/go-bindata</a>) written by <a href="https://jteeuwen.nl/" target="_blank">Jim Teeuwen</a>
+  </p>
+  
+
+  
+  <div class="code"><pre>$ go get github.com/jteeuwen/go-bindata/...
+$ go-bindata -ignore=data.go -prefix=app/templates -pkg=templates -o app/templates/data.go \
+  app/templates/...</pre></div>
+  
+
+  
+  <p>
+    Static asset files stored as byte arrays:
+  </p>
+  
+
+  
+  <div class="code"><pre>var _layout_html = []byte("\x1f\x8b\x08\x00\x00\x09...\x00")</pre></div>
+  
+
+  
+  <p>
+    Access the data liked this:
+  </p>
+  
+
+  
+  <div class="code"><pre>import "sourcegraph.com/sourcegraph/sourcegraph/app/templates"
+
+func parseTemplates() {
+   ...
+   tmpl := template.New("")
+   tmplbytes, err := Asset("app/templates/main.html") // instead of filesystem access
+   _, err = tmpl.Parse(string(tmplbytes))
+   ...
+}</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>go-bindata: fall back to filesystem during development</h3>
+        
+  
+  <p>
+    During development, pass the <b>-dev</b> flag to generate code that reads from the underlying asset files, but presents the <b>same interface</b> (so non-generated code doesn't have to change).
+  </p>
+  
+
+  
+  <div class="code"><pre>$ go-bindata -dev -ignore=data.go -prefix=app/templates -pkg=templates -o app/templates/data.go \
+  app/templates/...</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Environment variables</h3>
+        
+  
+  <div class="code"><pre>export BASE_URL=https://sourcegraph.com
+export HEAP_ANALYTICS_ID=99999
+export GOOGLE_ANALYTICS_TRACKING_ID=99999
+export SESSION_SIGNING_KEY_BASE64=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+export SESSION_ENCRYPTION_KEY_BASE64=aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+export APPDASH_URL=https://appd.sourcegraph.com
+export APPDASH_PORT=5678
+export S3_BUCKET=https://sg-us-west-2.amazonaws.com/
+export S3_ROOT=s3://sg-store
+export LOG_HOST=logs.papertrailapp.com:12345
+export USE_PAPERTRAIL=t
+export USE_CSP=t
+export PGHOST=localhost
+export PGDATABASE=sourcegraph
+export PGPASSWORD=passw0rd
+export PGUSER=sourcegraph
+export PGSSLMODE=enable
+
+# etc...</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>go-envdata</h3>
+        
+  
+  <p>
+    Sets defaults for environment variables from dev environment or existing config file:
+  </p>
+  
+
+  
+  <div class="code"><pre>$ go get github.com/beyang/go-envdata
+$ env -i bash -c 'source ~/config.sh; go-envdata -pkg env -o env/env.go;'</pre></div>
+  
+
+  
+  <p>
+    Auto-generates code:
+  </p>
+  
+
+  
+  <div class="code"><pre>var defaults = map[string]string{}
+
+func init() {
+  for k, v := range defaults {
+    if os.Getenv(k) == "" {
+      os.Setenv(k, v)
+    }
+  }
+}</pre></div>
+  
+
+  
+  <p>
+    Import the generated package for side effects:
+  </p>
+  
+
+  
+  <div class="code"><pre>import _ "sourcegraph.com/sourcegraph/sourcegraph/env"
+
+var baseURL = os.Getenv("BASE_URL")</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article class="">
+      
+        <h3>Deployment process</h3>
+        
+  
+  <div class="code"><pre>$ scp sg@deploy.sourcegraph.com:~/sourcegraph .
+$ ./sourcegraph
+Server listening on :80</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h2>How do I incorporate this into my dev process?</h2>
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Option 1: via Makefile</h3>
+        
+  
+  <div class="code"><pre>.PHONY: dev dist generate-dev generate-dist test
+
+dev: generate-dev
+      go install ./...
+
+dist: generate-dist test
+      go install ./...
+
+generate-dev:
+      go-bindata -dev -ignore=data.go -prefix=app/templates -pkg=templates -o app/templates/data.go app/templates/...
+      go-envdata -dev -pkg env -o env/env.go
+
+generate-dist:
+      go-bindata -ignore=data.go -prefix=app/templates -pkg=templates -o app/templates/data.go app/templates/...
+      env -i bash -c 'source ~/config.sh; go-envdata -pkg env -o env/env.go;'
+
+test:
+      verify-permissions-check
+      go test ./...</pre></div>
+  
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Option 2: via go generate</h3>
+        
+  
+  <p>
+    New feature of go command starting in Go 1.4.
+  </p>
+  
+
+  
+  <p>
+    In code:
+  </p>
+  
+
+  
+  <div class="code"><pre>//go:generate &lt;command&gt; &lt;args&gt;</pre></div>
+  
+
+  
+  <p>
+    E.g., in sourcegraph.com/sourcegraph/go-sourcegraph/sourcegraph/client.go:
+  </p>
+  
+
+  
+  <div class="code"><pre>//go:generate gen-mocks -p sourcegraph.com/sourcegraph/go-sourcegraph/sourcegraph -n sourcegraph \
+  -o . -w</pre></div>
+  
+
+  
+  <p>
+    Then run:
+  </p>
+  
+
+  
+  <div class="code"><pre>$ go generate ./...</pre></div>
+  
+
+  
+  <p>
+    Advantages
+  </p>
+  
+
+  <ul>
+  
+    <li>no external tool dependency</li>
+  
+    <li>cross-platform</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>To metaprogram or not to metaprogram?</h3>
+        
+  
+  <p>
+    Metaprogramming adds complexity
+  </p>
+  
+
+  <ul>
+  
+    <li>more steps in build process</li>
+  
+    <li>increased mental overhead</li>
+  
+    <li>harder to debug</li>
+  
+  </ul>
+
+  
+  <p>
+    Principle: Empathize with the reader.
+  </p>
+  
+
+  <ul>
+  
+    <li>Code is written once, read many times.</li>
+  
+    <li>Auto-generated code should ideally be human-readable.</li>
+  
+    <li>Avoid "magic".</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Other examples of metaprogramming in Go</h3>
+        
+  <ul>
+  
+    <li><a href="http://golang.org/x/tools" target="_blank">golang.org/x/tools</a></li>
+  
+    <li><a href="https://github.com/golang/go/wiki/GoGenerateTools" target="_blank">github.com/golang/go/wiki/GoGenerateTools</a></li>
+  
+    <li><a href="https://godoc.org/golang.org/x/tools/cmd/stringer" target="_blank">godoc.org/golang.org/x/tools/cmd/stringer</a></li>
+  
+    <li><a href="https://github.com/campoy/jsonenums" target="_blank">github.com/campoy/jsonenums</a></li>
+  
+    <li><a href="https://github.com/sourcegraph/gostringer" target="_blank">github.com/sourcegraph/gostringer</a> (<a href="https://sourcegraph.com/shurcoo" target="_blank">Dmitri Shuryalov</a>)</li>
+  
+    <li><a href="https://github.com/ChimeraCoder/gojson" target="_blank">github.com/ChimeraCoder/gojson</a></li>
+  
+  </ul>
+
+  
+  <p>
+    A lot of these are short and sweet (200-300 lines of code).
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Go makes all of this extremely doable</h3>
+        
+<div class="image">
+  <img src="./Practical Metaprogramming in Go_files/tools.svg">
+</div>
+
+  
+  <p>
+    (image taken from <a href="http://talks.golang.org/2014/static-analysis.slide#8" target="_blank">Alan Donovan's talk</a>)
+  </p>
+  
+
+      
+      </article>
+  
+  
+  
+      <article>
+      
+        <h3>Ideas for more metaprograms</h3>
+        
+  <ul>
+  
+    <li>Generate entire API client from curl and JSON examples.</li>
+  
+    <li>Generate/update stub implementation that satisfies a set of interfaces.</li>
+  
+    <li>srclib (<a href="https://srclib.org/" target="_blank">srclib.org</a>), a cross-language (Go, Java, JavaScript, Python, Ruby, Haskell) analysis library that powers <a href="https://sourcegraph.com/" target="_blank">Sourcegraph.com</a> and editor plugins, heavily inspired by Go analysis libraries and tools</li>
+  
+  </ul>
+
+      
+      </article>
+  
+  
+
+      <article>
+        <h3>Thank you</h3>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    Beyang Liu
+  </p>
+  
+
+  
+  <p>
+    Sourcegraph
+  </p>
+  
+<p class="link"><a href="http://127.0.0.1:3999/main.slide#ZgotmplZ" target="_blank"></a><a href="https://sourcegraph.com/" target="_blank">sourcegraph.com</a></p><p class="link"><a href="http://twitter.com/beyang" target="_blank">@beyang</a></p><p class="link"><a href="http://twitter.com/srcgraph" target="_blank">@srcgraph</a></p>
+          </div>
+        
+          <div class="presenter">
+            
+  
+  <p>
+    
+  </p>
+  
+
+          </div>
+        
+      </article>
+
+    <div class="slide-area" id="prev-slide-area"></div><div class="slide-area" id="next-slide-area"></div></section>
+
+    <div id="help" style="display: none;">
+      Use the left and right arrow keys or click the left and right
+      edges of the page to navigate between slides.<br>
+      (Press 'H' or navigate to hide this message.)
+    </div>
+
+  
+  
+  <script src="./Practical Metaprogramming in Go_files/play.js"></script>
+  
+
+<link rel="stylesheet" type="text/css" href="./Practical Metaprogramming in Go_files/css"><link rel="stylesheet" type="text/css" href="./Practical Metaprogramming in Go_files/styles.css"><link rel="stylesheet" type="text/css" media="print" href="./Practical Metaprogramming in Go_files/print.css"></body></html>
