@@ -38,7 +38,7 @@ Go In Action - The Channel Guarantee by William Kennedy
 
 [Principles of designing Go APIs with channels](https://sourcegraph.com/blog/live/gopherconindia/111555846937) by Alan Shreve
 
-[Cgo - Go under the hood](https://sourcegraph.com/blog/live/gopherconindia/111556333627) - Rajesh Ramachandran
+[Cgo: Go under the hood](https://speakerdeck.com/rajeshr/cgo-go-under-the-hood) | [Blog post](https://sourcegraph.com/blog/live/gopherconindia/111556333627) by Rajesh Ramachandran
 
 [Closing Keynote: The Roots of Go](https://sourcegraph.com/blog/live/gopherconindia/111558905792) by Baishampayan Ghose
 
