@@ -10,7 +10,7 @@ List of Talks
 
 [Evolution of a Gopher](https://speakerdeck.com/campoy/gophercon-india-evolution-of-a-gopher) | [Blog post](https://sourcegraph.com/blog/live/gopherconindia/111532276007) by Francesc Campoy Flores
 
-[Herding Gophers](https://sourcegraph.com/blog/live/gopherconindia/111535062177) by Aaron Cruz
+[Herding Gophers](https://speakerdeck.com/pferdefleisch/herding-gophers) | [Blog post](https://sourcegraph.com/blog/live/gopherconindia/111535062177) by Aaron Cruz
 
 [Gopher from the future](https://sourcegraph.com/blog/live/gopherconindia/111538530397) by Gabriel Aszalos
 
