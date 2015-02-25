@@ -66,7 +66,7 @@ Go In Action - The Channel Guarantee by William Kennedy
 
 [Image Processing at scale in Go](https://speakerdeck.com/jyotiska/image-processing-in-scale-with-go-gophercon-india-2015) | [Blog post](https://sourcegraph.com/blog/live/gopherconindia/111648697747) by Jyotiska NK
 
-[Raytracing in Go](https://sourcegraph.com/blog/live/gopherconindia/111649268512) by Guillaume J. Charmes
+[Raytracing in Go](https://github.com/creack/talks/tree/master/raytracer.gophercon.india.2015-02-22) | [Blog post](https://sourcegraph.com/blog/live/gopherconindia/111649268512) by Guillaume J. Charmes
 
 [Closing Keynote: Simplicity and collaboration](http://go-talks.appspot.com/github.com/gopherconindia/talks/2015/dave-cheney/simplicity.slide) | [Blog post](https://sourcegraph.com/blog/live/gopherconindia/111854129512) by Dave Cheney
 
