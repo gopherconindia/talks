@@ -1,0 +1,9 @@
+$ go test -gcflags="-m" -bench Alloc // HL
+./stack_test.go:5: can inline stacked
+./stack_test.go:9: can inline heaped
+./stack_test.go:15: inlining call to stacked
+./stack_test.go:21: inlining call to heaped
+./stack_test.go:10: &[128]int64 literal escapes to heap // HL
+./stack_test.go:13: BenchmarkStackAlloc b does not escape
+./stack_test.go:19: BenchmarkHeapAlloc b does not escape
+./stack_test.go:21: heaped &[128]int64 literal does not escape // HL

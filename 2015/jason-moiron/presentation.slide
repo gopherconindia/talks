@@ -1,0 +1,321 @@
+Go Faster
+Optimising Go Programs
+19 Feb 2015
+Tags: go golang profiling benchmarking asm performance
+
+Jason Moiron
+Programmer, Datadog, Inc. (datadoghq.com)
+jmoiron@jmoiron.net
+http://jmoiron.net
+@jmoiron
+
+* A Quote
+
+"There is no doubt that the grail of efficiency leads to abuse.  Programmers waste enormous amounts of time thinking about, or worrying about, the speed of noncritical parts of their programs, and these attempts at efficiency actually have a strong negative impact when debugging and maintenance are considered. We should forget about small efficiencies, say about 97% of the time [...], yet *we*should*not*pass*up*our*opportunities* in that critical 3%."
+
+.caption Donald Knuth [[http://cs.sjsu.edu/~mak/CS185C/KnuthStructuredProgrammingGoTo.pdf][Structured Programming with go to Statements]]
+
+* The Need for Speed
+
+.image img/chart.png
+
+- every timeseries _point_ is a write
+- low latency alerting, realtime graphing
+- "high cardinality"
+- lots of CPU bound work
+
+* Measure Everything
+
+Learning what to change:
+
+- profiling with *go*tool*pprof*
+- instrumentation with *expvar*
+
+Learning how to change it:
+
+- benchmark with *testing.B*
+- reading stdlib code
+- assembly output with *go*tool*6/8/5g*
+
+The go stdlib code is _not_ scary.  Dive in!
+
+
+* Identifying the 3%
+
+* Profiling
+
+- built in sampling profiler
+- low overhead (can run in production)
+
+.code code/pprof.go
+
+* Profiling II
+
+- net/http/pprof
+
+.code code/net-pprof.txt
+
+- generates 30 second profile over http
+
+    $ go tool pprof http://localhost:6060/debug/pprof/profile
+    $ go tool pprof http://localhost:6060/debug/pprof/heap
+    $ go tool pprof http://localhost:6060/debug/pprof/block
+
+* Using pprof output
+
+.code code/pprof-out.txt /START 1 OMIT/,/END 1 OMIT/
+    
+* Using pprof output II
+
+.code code/pprof-out.txt /START 3/,/END 3/
+
+* Using pprof output III
+
+.code code/pprof-out.txt /START 2 OMIT/,/END 2 OMIT/
+
+
+* Pretty Pictures
+
+    $ go tool pprof -ps <binary> <profile path>
+
+.image img/mouzone-pprof.png _ 700
+
+* Expvar
+
+.code code/expvar.txt
+
+Expose variables on a simple json HTTP interface:
+
+    $ curl http://localhost:6060/debug/vars
+    { "cacheSize": 421, "requestCount": 10332, ...}
+
+* Expvar II
+
+Measure things relevant to you:
+
+- channel lengths
+- throughput
+- cache sizes
+
+Free stats:
+
+- command line
+- allocation stats
+- heap stats
+- gc stats
+
+* In the wild
+
+Queue processing daemon called "mouzone"
+
+.code code/mouzone.txt
+
+* In the wild: Measuring Everything
+
+.image charts/before.png _ 550
+
+* In the wild: Profiling
+
+.image img/mouzone-pprof.png _ 700
+
+* In the wild: Measuring Everything II
+
+.image charts/after.png _ 550
+
+* Writing faster code
+
+* Benchmarking
+
+Benchmarks are short, repeatable timing tests.
+
+    func BenchmarkZlib(b *testing.B) {
+        for i:=0; i<b.N; i++ {
+        // ...
+        }
+    }
+
+Run them with `go`test`-bench`
+
+    $ go test -bench . -benchmem
+    ...
+    BenchmarkFzlibDecompress         300       4849825 ns/op      942101 B/op           1 allocs/op
+    BenchmarkCzlibDecompress         300       5354454 ns/op     2128336 B/op          16 allocs/op
+    BenchmarkZlibDecompress          100      14694251 ns/op     2141291 B/op          59 allocs/op
+    BenchmarkFzlibCompress            20      58481874 ns/op      262156 B/op           1 allocs/op
+    BenchmarkCzlibCompress            20      58993665 ns/op      639292 B/op           7 allocs/op
+    BenchmarkZlibCompress             10     167576430 ns/op     2455070 B/op        1026 allocs/op
+
+
+* Benchmarking II
+
+Lets use benchmarking to explore Go:
+
+- structs vs maps
+- map key types
+- heap & stack allocation
+
+* Structs vs Maps
+
+.code bench/smb_test.go /^func BenchmarkMap/,/^}/ 
+.code bench/smb_test.go /^func BenchmarkStruct/,/^}/
+
+    $ go test -bench .
+    ...
+    BenchmarkMapAccess     100000000        13.00 ns/op
+    BenchmarkStructAccess  500000000         0.63 ns/op
+
+* Structs vs Maps: ASM
+
+.code -numbers code/structvmap.go
+
+We can see how this works by looking at the ASM output w/ *go*tool*6g*-S*
+
+.code code/structvmap.S
+
+* Structs vs Maps: ASM II
+
+.code -numbers code/structvmap2.go
+
+asm output for line 5:
+
+.code code/structvmap2.S
+
+* Structs vs Maps: ASM III
+
+The uncut assembly for Lines 4 & 5
+
+.image img/smvasm.png _  500
+
+.caption *Full* program readout is 138 LOC vs 1058 LOC.
+
+* More on Maps
+
+Maps are hash tables.  Lookup involves:
+
+- hashing the key
+- using the hash to find a bucket
+- traversing the bucket to find the key
+- returning a _copy_ of the value
+
+Writing is similar.
+
+* String keys vs Struct Keys
+
+.code bench/mapkeys_test.go /^func BenchmarkStringKeys/,/^}/
+.code bench/mapkeys_test.go /^func BenchmarkStructKeys/,/^}/
+
+    $ go test -bench .
+    ...
+    BenchmarkStringKeys     100000000        22.8 ns/op
+    BenchmarkStructKeys     20000000         93.2 ns/op
+    
+* String keys vs Struct keys: Profile
+
+Lets profile our benchmarks and see what's going on:
+
+.code code/bench-prof.txt
+
+Output for stringkeys.ps:
+
+.image img/string-keys-prof.png _ 500
+
+* String keys vs Struct keys: Profile II
+
+Output for structkeys.ps:
+
+.image img/struct-keys-prof.png _ 550
+
+* String keys vs Struct keys: The source!
+
+Not related to hashing:
+
+    // src/runtime/alg.go
+    func strhash(a unsafe.Pointer, s, h uintptr) uintptr {
+        return memhash((*stringStruct)(a).str, uintptr(len(*(*string)(a))), h)
+    }
+
+`runtime·aeshashstr` is almost identical to `runtime·aeshash` 
+
+*src/runtime/hashmap_fast.go* has a number of fast paths:
+
+- mapaccess(1,2)_fast32 for 32bit ints
+- mapaccess(1,2)_fast64 for 64bit ints
+- mapaccess(1,2)_faststr for strings
+
+Map overhead reduced for these common key types.
+
+* Heap & Stack Allocation
+
+- stack allocation is static
+- heap allocation goes through dynamic allocator
+- heap allocated variables must be GC'd
+
+"When possible, the Go compilers will allocate variables that are local to a function in that function's stack frame."
+
+.caption [[http://golang.org/doc/faq#stack_or_heap][How do I know whether a variable is allocated on the heap or the stack?]]
+
+* Heap & Stack Allocation II
+
+Let's compare two simple functions that allocate and return 1K:
+
+.code bench/stack_test.go /^func stacked/,/^}/
+.code bench/stack_test.go /^func heaped/,/^}/
+
+    $ go test -bench Alloc
+    BenchmarkStackAlloc     10000000           133 ns/op
+    BenchmarkHeapAlloc      20000000            83.5 ns/op
+
+Curious...  Is it because returning an 8-byte pointer is cheaper than a 1K buffer?
+
+* Tricking yourself
+
+You have to be careful that your benchmarks test what you _think_ they are testing.  Lets see what the go compiler is doing:
+
+.code code/opt-decisions.txt
+
+There are more compiler flags available, use *go*tool*6g*--help* for a list.  Let's try again with optimisations and inlining off:
+
+    $ go test -gcflags="-N -l" -bench Alloc
+    BenchmarkStackAlloc     10000000           135 ns/op
+    BenchmarkHeapAlloc      500000            3146 ns/op
+
+* Heap & Stack Allocation: ASM
+
+Lets see the asm: `go`tool`6g`-S`-N`-l`stack_test.go`
+
+stacked:
+
+.code code/stack_test.S /^"".stacked/,/OMIT/
+
+* Heap & Stack Allocation: ASM II
+
+heaped:
+
+.code code/stack_test.S /^"".heaped/,/OMIT/
+
+* In Summary
+
+Measure, don't guess:
+
+"Intuition == guessing == being wrong and thinking you're awesome" - [[https://botbot.me/freenode/go-nuts/2014-01-31/?msg=10375769&page=8][Dustin Sallings]]
+
+Real programs have complex interactions that are hard to visualize:
+
+- impact of the scheduler
+- cpu cache utilization
+- cost of allocation
+- interaction between your program and the OS
+- behavior of dependent networked systems (eg. dbs)
+- properties of _actual_ workload as it evolves
+- garbage production & GC pauses
+
+But _all_ are measurable.
+
+* Bonus Round
+
+Quiz:
+
+.play code/nanmap.go
+
+
+

@@ -1,0 +1,148 @@
+go object linux amd64 go1.4.1 X:precisestack
+
+$$
+package main
+	import runtime "runtime"
+	import testing "testing"
+	import sync "sync" // indirect
+	type @"sync".Mutex struct { @"sync".state int32; @"sync".sema uint32 }
+	func (@"sync".mÂ·1 *@"sync".Mutex) Lock ()
+	func (@"sync".mÂ·1 *@"sync".Mutex) Unlock ()
+	type @"sync".Locker interface { Lock(); Unlock() }
+	type @"sync".RWMutex struct { @"sync".w @"sync".Mutex; @"sync".writerSem uint32; @"sync".readerSem uint32; @"sync".readerCount int32; @"sync".readerWait int32 }
+	func (@"sync".rwÂ·1 *@"sync".RWMutex) Lock ()
+	func (@"sync".rwÂ·1 *@"sync".RWMutex) RLock ()
+	func (@"sync".rwÂ·2 *@"sync".RWMutex "esc:0x2") RLocker () (? @"sync".Locker) { return (*@"sync".rlocker)(@"sync".rwÂ·2) }
+	func (@"sync".rwÂ·1 *@"sync".RWMutex) RUnlock ()
+	func (@"sync".rwÂ·1 *@"sync".RWMutex) Unlock ()
+	import time "time" // indirect
+	type @"time".zone struct { @"time".name string; @"time".offset int; @"time".isDST bool }
+	type @"time".zoneTrans struct { @"time".when int64; @"time".index uint8; @"time".isstd bool; @"time".isutc bool }
+	type @"time".Location struct { @"time".name string; @"time".zone []@"time".zone; @"time".tx []@"time".zoneTrans; @"time".cacheStart int64; @"time".cacheEnd int64; @"time".cacheZone *@"time".zone }
+	func (@"time".lÂ·2 *@"time".Location "esc:0x0") String () (? string)
+	func (@"time".lÂ·2 *@"time".Location "esc:0x0") @"time".firstZoneUsed () (? bool)
+	func (@"time".lÂ·2 *@"time".Location "esc:0x2") @"time".get () (? *@"time".Location)
+	func (@"time".lÂ·6 *@"time".Location "esc:0x1") @"time".lookup (@"time".secÂ·7 int64) (@"time".nameÂ·1 string, @"time".offsetÂ·2 int, @"time".isDSTÂ·3 bool, @"time".startÂ·4 int64, @"time".endÂ·5 int64)
+	func (@"time".lÂ·2 *@"time".Location "esc:0x0") @"time".lookupFirstZone () (? int)
+	func (@"time".lÂ·4 *@"time".Location "esc:0x0") @"time".lookupName (@"time".nameÂ·5 string "esc:0x0", @"time".unixÂ·6 int64) (@"time".offsetÂ·1 int, @"time".isDSTÂ·2 bool, @"time".okÂ·3 bool)
+	type @"time".Duration int64
+	func (@"time".dÂ·2 @"time".Duration) Hours () (? float64) { var @"time".hourÂ·3 @"time".Duration; ; @"time".hourÂ·3 = @"time".dÂ·2 / @"time".Duration(0x34630B8A000); var @"time".nsecÂ·4 @"time".Duration; ; @"time".nsecÂ·4 = @"time".dÂ·2 % @"time".Duration(0x34630B8A000); return float64(@"time".hourÂ·3) + float64(@"time".nsecÂ·4) * 0x9C5FFF26ED75Fp-93 }
+	func (@"time".dÂ·2 @"time".Duration) Minutes () (? float64) { var @"time".minÂ·3 @"time".Duration; ; @"time".minÂ·3 = @"time".dÂ·2 / @"time".Duration(0xDF8475800); var @"time".nsecÂ·4 @"time".Duration; ; @"time".nsecÂ·4 = @"time".dÂ·2 % @"time".Duration(0xDF8475800); return float64(@"time".minÂ·3) + float64(@"time".nsecÂ·4) * 0x9299FF347E9E9p-87 }
+	func (@"time".dÂ·2 @"time".Duration) Nanoseconds () (? int64) { return int64(@"time".dÂ·2) }
+	func (@"time".dÂ·2 @"time".Duration) Seconds () (? float64) { var @"time".secÂ·3 @"time".Duration; ; @"time".secÂ·3 = @"time".dÂ·2 / @"time".Duration(0x3B9ACA00); var @"time".nsecÂ·4 @"time".Duration; ; @"time".nsecÂ·4 = @"time".dÂ·2 % @"time".Duration(0x3B9ACA00); return float64(@"time".secÂ·3) + float64(@"time".nsecÂ·4) * 0x112E0BE826D695p-82 }
+	func (@"time".dÂ·2 @"time".Duration) String () (? string)
+	type @"time".Month int
+	func (@"time".mÂ·2 @"time".Month) String () (? string) { return @"time".months[@"time".mÂ·2 - @"time".Month(0x1)] }
+	type @"time".Weekday int
+	func (@"time".dÂ·2 @"time".Weekday) String () (? string) { return @"time".days[@"time".dÂ·2] }
+	type @"time".Time struct { @"time".sec int64; @"time".nsec int32; @"time".loc *@"time".Location }
+	func (@"time".tÂ·2 @"time".Time "esc:0x2") Add (@"time".dÂ·3 @"time".Duration) (? @"time".Time)
+	func (@"time".tÂ·2 @"time".Time "esc:0x2") AddDate (@"time".yearsÂ·3 int, @"time".monthsÂ·4 int, @"time".daysÂ·5 int) (? @"time".Time)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") After (@"time".uÂ·3 @"time".Time "esc:0x0") (? bool) { return @"time".tÂ·2.@"time".sec > @"time".uÂ·3.@"time".sec || @"time".tÂ·2.@"time".sec == @"time".uÂ·3.@"time".sec && @"time".tÂ·2.@"time".nsec > @"time".uÂ·3.@"time".nsec }
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Before (@"time".uÂ·3 @"time".Time "esc:0x0") (? bool) { return @"time".tÂ·2.@"time".sec < @"time".uÂ·3.@"time".sec || @"time".tÂ·2.@"time".sec == @"time".uÂ·3.@"time".sec && @"time".tÂ·2.@"time".nsec < @"time".uÂ·3.@"time".nsec }
+	func (@"time".tÂ·4 @"time".Time "esc:0x0") Clock () (@"time".hourÂ·1 int, @"time".minÂ·2 int, @"time".secÂ·3 int)
+	func (@"time".tÂ·4 @"time".Time "esc:0x0") Date () (@"time".yearÂ·1 int, @"time".monthÂ·2 @"time".Month, @"time".dayÂ·3 int)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Day () (? int)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Equal (@"time".uÂ·3 @"time".Time "esc:0x0") (? bool) { return @"time".tÂ·2.@"time".sec == @"time".uÂ·3.@"time".sec && @"time".tÂ·2.@"time".nsec == @"time".uÂ·3.@"time".nsec }
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Format (@"time".layoutÂ·3 string "esc:0x0") (? string)
+	func (@"time".tÂ·2 *@"time".Time "esc:0x0") GobDecode (@"time".dataÂ·3 []byte "esc:0x0") (? error)
+	func (@"time".tÂ·3 @"time".Time "esc:0x0") GobEncode () (? []byte, ? error)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Hour () (? int)
+	func (@"time".tÂ·3 @"time".Time "esc:0x0") ISOWeek () (@"time".yearÂ·1 int, @"time".weekÂ·2 int)
+	func (@"time".tÂ·2 @"time".Time "esc:0x2") In (@"time".locÂ·3 *@"time".Location "esc:0x2") (? @"time".Time)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") IsZero () (? bool) { return @"time".tÂ·2.@"time".sec == 0x0 && @"time".tÂ·2.@"time".nsec == 0x0 }
+	func (@"time".tÂ·2 @"time".Time "esc:0x2") Local () (? @"time".Time) { @"time".tÂ·2.@"time".loc = @"time".Local; return @"time".tÂ·2 }
+	func (@"time".tÂ·2 @"time".Time "esc:0x2") Location () (? *@"time".Location) { var @"time".lÂ·3 *@"time".Location; ; @"time".lÂ·3 = @"time".tÂ·2.@"time".loc; if @"time".lÂ·3 == nil { @"time".lÂ·3 = @"time".UTC }; return @"time".lÂ·3 }
+	func (@"time".tÂ·3 @"time".Time "esc:0x0") MarshalBinary () (? []byte, ? error)
+	func (@"time".tÂ·3 @"time".Time "esc:0x0") MarshalJSON () (? []byte, ? error)
+	func (@"time".tÂ·3 @"time".Time "esc:0x0") MarshalText () (? []byte, ? error)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Minute () (? int)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Month () (? @"time".Month)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Nanosecond () (? int) { return int(@"time".tÂ·2.@"time".nsec) }
+	func (@"time".tÂ·2 @"time".Time "esc:0x2") Round (@"time".dÂ·3 @"time".Duration) (? @"time".Time)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Second () (? int)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") String () (? string)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Sub (@"time".uÂ·3 @"time".Time "esc:0x0") (? @"time".Duration)
+	func (@"time".tÂ·2 @"time".Time "esc:0x2") Truncate (@"time".dÂ·3 @"time".Duration) (? @"time".Time)
+	func (@"time".tÂ·2 @"time".Time "esc:0x2") UTC () (? @"time".Time) { @"time".tÂ·2.@"time".loc = @"time".UTC; return @"time".tÂ·2 }
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Unix () (? int64) { return @"time".tÂ·2.@"time".sec + -0xE7791F700 }
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") UnixNano () (? int64) { return (@"time".tÂ·2.@"time".sec + -0xE7791F700) * 0x3B9ACA00 + int64(@"time".tÂ·2.@"time".nsec) }
+	func (@"time".tÂ·2 *@"time".Time "esc:0x0") UnmarshalBinary (@"time".dataÂ·3 []byte "esc:0x0") (? error)
+	func (@"time".tÂ·2 *@"time".Time "esc:0x0") UnmarshalJSON (@"time".dataÂ·3 []byte "esc:0x0") (@"time".errÂ·1 error)
+	func (@"time".tÂ·2 *@"time".Time "esc:0x0") UnmarshalText (@"time".dataÂ·3 []byte "esc:0x0") (@"time".errÂ·1 error)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Weekday () (? @"time".Weekday)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") Year () (? int)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") YearDay () (? int)
+	func (@"time".tÂ·3 @"time".Time "esc:0x0") Zone () (@"time".nameÂ·1 string, @"time".offsetÂ·2 int)
+	func (@"time".tÂ·2 @"time".Time "esc:0x0") @"time".abs () (? uint64)
+	func (@"time".tÂ·5 @"time".Time "esc:0x0") @"time".date (@"time".fullÂ·6 bool) (@"time".yearÂ·1 int, @"time".monthÂ·2 @"time".Month, @"time".dayÂ·3 int, @"time".ydayÂ·4 int)
+	func (@"time".tÂ·4 @"time".Time "esc:0x1") @"time".locabs () (@"time".nameÂ·1 string, @"time".offsetÂ·2 int, @"time".absÂ·3 uint64)
+	type @"testing".common struct { @"testing".mu @"sync".RWMutex; @"testing".output []byte; @"testing".failed bool; @"testing".skipped bool; @"testing".finished bool; @"testing".start @"time".Time; @"testing".duration @"time".Duration; @"testing".self interface {}; @"testing".signal chan interface {} }
+	func (@"testing".cÂ·1 *@"testing".common) Error (@"testing".argsÂ·2 ...interface {} "esc:0x0")
+	func (@"testing".cÂ·1 *@"testing".common) Errorf (@"testing".formatÂ·2 string "esc:0x0", @"testing".argsÂ·3 ...interface {} "esc:0x0")
+	func (@"testing".cÂ·1 *@"testing".common) Fail ()
+	func (@"testing".cÂ·1 *@"testing".common) FailNow ()
+	func (@"testing".cÂ·2 *@"testing".common) Failed () (? bool)
+	func (@"testing".cÂ·1 *@"testing".common) Fatal (@"testing".argsÂ·2 ...interface {} "esc:0x0")
+	func (@"testing".cÂ·1 *@"testing".common) Fatalf (@"testing".formatÂ·2 string "esc:0x0", @"testing".argsÂ·3 ...interface {} "esc:0x0")
+	func (@"testing".cÂ·1 *@"testing".common) Log (@"testing".argsÂ·2 ...interface {} "esc:0x0")
+	func (@"testing".cÂ·1 *@"testing".common) Logf (@"testing".formatÂ·2 string "esc:0x0", @"testing".argsÂ·3 ...interface {} "esc:0x0")
+	func (@"testing".cÂ·1 *@"testing".common) Skip (@"testing".argsÂ·2 ...interface {} "esc:0x0")
+	func (@"testing".cÂ·1 *@"testing".common) SkipNow ()
+	func (@"testing".cÂ·1 *@"testing".common) Skipf (@"testing".formatÂ·2 string "esc:0x0", @"testing".argsÂ·3 ...interface {} "esc:0x0")
+	func (@"testing".cÂ·2 *@"testing".common) Skipped () (? bool)
+	func (@"testing".cÂ·1 *@"testing".common) @"testing".log (@"testing".sÂ·2 string "esc:0x0")
+	func (@"testing".cÂ·1 *@"testing".common "esc:0x0") @"testing".private () {  }
+	func (@"testing".cÂ·1 *@"testing".common) @"testing".skip ()
+	type @"testing".InternalBenchmark struct { Name string; F func(@"testing".b *@"testing".B) }
+	type @"testing".BenchmarkResult struct { N int; T @"time".Duration; Bytes int64; MemAllocs uint64; MemBytes uint64 }
+	func (@"testing".rÂ·2 @"testing".BenchmarkResult) AllocedBytesPerOp () (? int64) { if @"testing".rÂ·2.N <= 0x0 { return 0x0 }; return int64(@"testing".rÂ·2.MemBytes) / int64(@"testing".rÂ·2.N) }
+	func (@"testing".rÂ·2 @"testing".BenchmarkResult) AllocsPerOp () (? int64) { if @"testing".rÂ·2.N <= 0x0 { return 0x0 }; return int64(@"testing".rÂ·2.MemAllocs) / int64(@"testing".rÂ·2.N) }
+	func (@"testing".rÂ·2 @"testing".BenchmarkResult) MemString () (? string)
+	func (@"testing".rÂ·2 @"testing".BenchmarkResult) NsPerOp () (? int64)
+	func (@"testing".rÂ·2 @"testing".BenchmarkResult) String () (? string)
+	func (@"testing".rÂ·2 @"testing".BenchmarkResult) @"testing".mbPerSec () (? float64)
+	type @"testing".PB struct { @"testing".globalN *uint64; @"testing".grain uint64; @"testing".cache uint64; @"testing".bN uint64 }
+	func (@"testing".pbÂ·2 *@"testing".PB) Next () (? bool)
+	type @"testing".B struct { @"testing".? @"testing".common; N int; @"testing".previousN int; @"testing".previousDuration @"time".Duration; @"testing".benchmark @"testing".InternalBenchmark; @"testing".bytes int64; @"testing".timerOn bool; @"testing".showAllocResult bool; @"testing".result @"testing".BenchmarkResult; @"testing".parallelism int; @"testing".startAllocs uint64; @"testing".startBytes uint64; @"testing".netAllocs uint64; @"testing".netBytes uint64 }
+	func (@"testing".bÂ·1 *@"testing".B "esc:0x0") ReportAllocs () { @"testing".bÂ·1.@"testing".showAllocResult = true }
+	func (@"testing".bÂ·1 *@"testing".B "esc:0x0") ResetTimer ()
+	func (@"testing".bÂ·1 *@"testing".B) RunParallel (@"testing".bodyÂ·2 func(? *@"testing".PB))
+	func (@"testing".bÂ·1 *@"testing".B "esc:0x0") SetBytes (@"testing".nÂ·2 int64) { @"testing".bÂ·1.@"testing".bytes = @"testing".nÂ·2 }
+	func (@"testing".bÂ·1 *@"testing".B "esc:0x0") SetParallelism (@"testing".pÂ·2 int) { if @"testing".pÂ·2 >= 0x1 { @"testing".bÂ·1.@"testing".parallelism = @"testing".pÂ·2 } }
+	func (@"testing".bÂ·1 *@"testing".B "esc:0x0") StartTimer ()
+	func (@"testing".bÂ·1 *@"testing".B "esc:0x0") StopTimer ()
+	func (@"testing".bÂ·1 *@"testing".B) @"testing".launch ()
+	func (@"testing".bÂ·2 *@"testing".B "esc:0x0") @"testing".nsPerOp () (? int64)
+	func (@"testing".bÂ·2 *@"testing".B) @"testing".run () (? @"testing".BenchmarkResult)
+	func (@"testing".bÂ·1 *@"testing".B) @"testing".runN (@"testing".nÂ·2 int)
+	func (@"testing".bÂ·1 *@"testing".B) @"testing".trimOutput ()
+	func @"".BenchmarkStackAlloc (@"".bÂ·1 *@"testing".B "esc:0x0")
+	func @"".BenchmarkHeapAlloc (@"".bÂ·1 *@"testing".B "esc:0x0")
+	func @"".init ()
+	type @"sync".rlocker struct { @"sync".w @"sync".Mutex; @"sync".writerSem uint32; @"sync".readerSem uint32; @"sync".readerCount int32; @"sync".readerWait int32 }
+	func (@"sync".rÂ·1 *@"sync".rlocker) Lock ()
+	func (@"sync".rÂ·1 *@"sync".rlocker) Unlock ()
+	var @"time".months [12]string
+	var @"time".days [7]string
+	var @"time".Local *@"time".Location
+	var @"time".UTC *@"time".Location
+
+$$
+
+!
+  go13ldtesting.a ş"".stacked  À  ¼dH‹%    H„$€üÿÿH;Awè    ëâHì   H¼$  1Àè    H<$1Àè    H$H¬$  H‰ïH‰Şè    HÄ   Ã
+
+      0  0runtime.morestack_noctxt   `   runtime.duffzero   v   runtime.duffzero   ¤   runtime.duffcopy   €€  "".autotmp_0000 ÿtype.[128]int64 "".~r0  type.[128]int64 %€8ÿ ` 
+4,  TgclocalsÂ·f5ade30bbce0849e822a7fbe23cb9872 TgclocalsÂ·3280bececceccd33cb74587feedb1f9f   –/mnt/omocha/jmoiron/dev/slides/gophercon-india-02202015/bench/stack_test.goş"".heaped  à  ÄdH‹%    H;awè    ëêHƒìHÇD$     H    H‰$è    H‹\$H‰\$H‹|$Hƒÿ t1Àè    H‹\$H‰\$ HƒÄÃ‰ëæ
+
+         0runtime.morestack_noctxt   L  type.[128]int64   ^  "runtime.newobject   –   runtime.duffzero   0  "".autotmp_0001  type.*[128]int64 "".~r0   type.*[128]int64 0C/0 p 
+#M 
+ .B TgclocalsÂ·a7a3692b8e27e823add69ec4239ba55f TgclocalsÂ·a7a3692b8e27e823add69ec4239ba55f   –/mnt/omocha/jmoiron/dev/slides/gophercon-india-02202015/bench/stack_test.goş,"".BenchmarkStackAlloc  à  ÆdH‹%    H„$püÿÿH;Awè    ëâHì  HÇ„$       H‹¬$  Hƒı tHH‹]pH‹¬$   H9ë~Kè    H‹œ$   H‰œ$  H‹œ$  HƒÃH‰œ$   H‹¬$  Hƒı u¸‰E H‹]pH‹¬$   H9ëµHÄ  Ã
+      0  0runtime.morestack_noctxt   ¢  "".stacked      "".autotmp_0002 type.int "".i type.int "".b  type.*testing.B % }Ÿ ° %+F 
+ P` TgclocalsÂ·519efd86263089ddb84df3cfe7fd2992 TgclocalsÂ·3280bececceccd33cb74587feedb1f9f   –/mnt/omocha/jmoiron/dev/slides/gophercon-india-02202015/bench/stack_test.goş*"".BenchmarkHeapAlloc  €  ôdH‹%    H;awè    ëêHƒìHÇD$    H‹l$ Hƒı t6H‹]pH‹l$H9ë~9è    H‹\$H‰\$H‹\$HƒÃH‰\$H‹l$ Hƒı uÊ‰E H‹]pH‹l$H9ëÇHƒÄÃ
+         0runtime.morestack_noctxt   z  "".heaped   0  "".autotmp_0003 type.int "".i type.int "".b  type.*testing.B 0_/ € ("4 
+ <D TgclocalsÂ·519efd86263089ddb84df3cfe7fd2992 TgclocalsÂ·3280bececceccd33cb74587feedb1f9f   –/mnt/omocha/jmoiron/dev/slides/gophercon-india-02202015/bench/stack_test.goş"".init     dH‹%    H;awè    ëêŠ    €û tŠ    €ûuÃè    Æ    è    Æ    Ã
+         0runtime.morestack_noctxt   0  "".initdoneÂ·   F  "".initdoneÂ·   \  "runtime.throwinit   l "".initdoneÂ·   x  testing.init   „ "".initdoneÂ·        P P 0P 
+ -# TgclocalsÂ·3280bececceccd33cb74587feedb1f9f TgclocalsÂ·3280bececceccd33cb74587feedb1f9f   –/mnt/omocha/jmoiron/dev/slides/gophercon-india-02202015/bench/stack_test.goşTgclocalsÂ·3280bececceccd33cb74587feedb1f9f           şTgclocalsÂ·f5ade30bbce0849e822a7fbe23cb9872 P  P                                       şTgclocalsÂ·a7a3692b8e27e823add69ec4239ba55f              şTgclocalsÂ·a7a3692b8e27e823add69ec4239ba55f              şTgclocalsÂ·3280bececceccd33cb74587feedb1f9f           şTgclocalsÂ·519efd86263089ddb84df3cfe7fd2992             şTgclocalsÂ·3280bececceccd33cb74587feedb1f9f           şTgclocalsÂ·519efd86263089ddb84df3cfe7fd2992             şTgclocalsÂ·3280bececceccd33cb74587feedb1f9f           şTgclocalsÂ·3280bececceccd33cb74587feedb1f9f           ş,"".initdoneÂ·  type.uint8   ş"".stackedÂ·f              "".stacked   ş,runtime.throwreturnÂ·f              &runtime.throwreturn   ş"".heapedÂ·f              "".heaped   ş(runtime.newobjectÂ·f              "runtime.newobject   ş2"".BenchmarkStackAllocÂ·f              ,"".BenchmarkStackAlloc   ş0"".BenchmarkHeapAllocÂ·f              *"".BenchmarkHeapAlloc   ş"".initÂ·f              "".init   ş(runtime.throwinitÂ·f              "runtime.throwinit   ştesting.initÂ·f              testing.init   şbruntime.gcbits.0x48844400000000000000000000000000     H„D              ş&go.string."[]int64" 0  0               []int64    &go.string."[]int64"   ştype.[]int64            –vˆ                                                                     runtime.algarray   0  bruntime.gcbits.0x48844400000000000000000000000000   P  &go.string."[]int64"   p  *go.weak.type.*[]int64   €  "runtime.zerovalue     type.int64   ş6go.typelink.[]int64/[]int64              type.[]int64   ş^runtime.gcbits.0x000000000000000000000000000000                      ş,go.string."[128]int64" @  6        
+       [128]int64    ,go.string."[128]int64"   ştype.[128]int64 À  À       ^SÑİ ‘                                                                        €           runtime.algarray   0  ^runtime.gcbits.0x000000000000000000000000000000   P  ,go.string."[128]int64"   p  0go.weak.type.*[128]int64   €  "runtime.zerovalue     type.int64      type.[]int64   şBgo.typelink.[128]int64/[128]int64              type.[128]int64   şbruntime.gcbits.0x88000000000000000000000000000000     ˆ                ş.go.string."*[128]int64" @  8               *[128]int64    .go.string."*[128]int64"   ş type.*[128]int64            Ô®Šß 6                                                                    runtime.algarray   0  bruntime.gcbits.0x88000000000000000000000000000000   P  .go.string."*[128]int64"   p  2go.weak.type.**[128]int64   €  "runtime.zerovalue     type.[128]int64   ş&go.string."runtime" 0  0               runtime    &go.string."runtime"   ş,go.importpath.runtime.                       &go.string."runtime"   ş&go.string."testing" 0  0               testing    &go.string."testing"   ş,go.importpath.testing.                       &go.string."testing"   ş"runtime.zerovalue      ÿÿgo13ld

@@ -1,0 +1,7 @@
+$ cd bench/
+$ go test -c // HL
+$ ./bench.test -test.bench="StringKeys" -test.cpuprofile="stringkeys.pprof"
+$ ./bench.test -test.bench="StructKeys" -test.cpuprofile="structkeys.pprof"
+$ go tool pprof --ps bench.test stringkeys.pprof > stringkeys.ps
+$ go tool pprof --ps bench.test structkeys.pprof > structkeys.ps
+

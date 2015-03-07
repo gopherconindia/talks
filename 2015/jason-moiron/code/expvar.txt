@@ -1,0 +1,15 @@
+import "expvar" // HL
+
+var cache map[string]*Thing
+var requests int
+
+func expose() {
+    go http.ListenAndServe("localhost:6060", nil) // HL
+
+    requestCount := expvar.NewInt("requestCount")
+    cacheSize := expvar.NewInt("cacheSize")
+    for _ = range <- time.Tick(5 * time.Second) {
+        requestCount.Set(requests) // HL
+        cacheSize.Set(len(cache))  // HL
+    }
+}

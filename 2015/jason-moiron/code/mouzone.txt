@@ -1,0 +1,17 @@
+func mouzone(messages chan msg) {
+    parsed := make(chan parsedMsg, 50)
+    resolved := make(chan resolvedMsg, 50)
+    go func() {
+        for msg := range messages {
+            parsed <- parse(msg) // HL
+        }
+    }()
+    go func() {
+        for msg := range parsed {
+            resolved <- resolve(msg) // HL
+        }
+    }()
+    for msg := range resolved {
+        // ...
+    }
+}
